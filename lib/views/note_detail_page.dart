@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:tasks_list/db/helpers_database.dart';
 import 'package:tasks_list/db/note_database.dart';
 import 'package:tasks_list/models/note.dart';
 import 'package:tasks_list/models/tasks.dart';
 import 'package:tasks_list/views/edit_note_page.dart';
 import 'package:tasks_list/views/edit_task_page.dart';
+import 'package:tasks_list/widgets/task_form_widget.dart';
 
 class NotesDetailPage extends StatefulWidget {
   final int notesId;
@@ -107,7 +110,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
           await Navigator.of(context)
               .push(MaterialPageRoute(
                   builder: (context) => AddEditTaskPage(
-                        noteId: widget.notesId,
+                        taskId: widget.notesId,
                       )))
               .then((value) {
             refreshTask();
@@ -123,39 +126,95 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
       itemBuilder: (context, index) {
         final tasks = task![index];
 
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        return Slidable(
+            key: UniqueKey(),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      tasks.title,
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tasks.title,
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Text(tasks.description),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 10,
+                    Checkbox(
+                      value: tasks.isDone,
+                      onChanged: (value) {
+                        setState(() {
+                          tasks.isDone = value!;
+                          updateTask(tasks);
+                        });
+                      },
                     ),
-                    Text(tasks.description),
                   ],
                 ),
-                Checkbox(
-                  value: tasks.isDone,
-                  onChanged: (value) {
-                    setState(() {
-                      tasks.isDone = value!;
-                    });
-                  },
-                )
-              ],
+              ),
             ),
-          ),
-        );
+            endActionPane: ActionPane(motion: const ScrollMotion(), children: [
+              SlidableAction(
+                onPressed: (context) async {
+                  if (isLoading) return;
+                  await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => AddEditTaskPage(
+                      task: tasks,
+                      taskId: tasks.id!,
+                    ),
+                  ));
+
+                  refreshNote();
+                },
+                backgroundColor: const Color(0xFF21B7CA),
+                foregroundColor: Colors.white,
+                icon: Icons.edit,
+                label: 'Edit',
+              ),
+              SlidableAction(
+                onPressed: (context) async {
+                  await NotesDataBase.instance.deleteTask(widget.notesId);
+
+                  refreshTask();
+                },
+                backgroundColor: const Color(0xFFFE4A49),
+                foregroundColor: Colors.white,
+                icon: Icons.edit,
+                label: 'Delete',
+              )
+            ]));
       });
+
+  Widget editButtonTask(Task task, int taskId) => IconButton(
+      icon: const Icon(Icons.edit_outlined),
+      onPressed: () async {
+        if (isLoading) return;
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => AddEditTaskPage(
+            task: task,
+            taskId: taskId,
+          ),
+        ));
+
+        refreshNote();
+      });
+
+  Widget deleteButtonTask() => IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: () async {
+          await NotesDataBase.instance.deleteTask(widget.notesId);
+
+          Navigator.of(context).pop();
+        },
+      );
 }

@@ -5,8 +5,8 @@ import 'package:tasks_list/widgets/task_form_widget.dart';
 
 class AddEditTaskPage extends StatefulWidget {
   final Task? task;
-  final int noteId;
-  const AddEditTaskPage({Key? key, this.task, required this.noteId})
+  final int taskId;
+  const AddEditTaskPage({Key? key, this.task, required this.taskId})
       : super(key: key);
 
   @override
@@ -79,18 +79,15 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
   }
 
   Future updateTask() async {
-    final task = widget.task!.copy(
-        id: widget.noteId,
-        title: title,
-        description: description,
-        isDone: done);
+    final task =
+        widget.task!.copy(title: title, description: description, isDone: done);
 
     await NotesDataBase.instance.updateTask(task);
   }
 
   Future addTask() async {
     final task = Task(
-        id: widget.noteId,
+        id: widget.taskId,
         title: title,
         description: description,
         isDone: false);

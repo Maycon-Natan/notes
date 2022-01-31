@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tasks_list/models/tasks.dart';
 
 class TaskFormWidget extends StatelessWidget {
   final String? title;
@@ -28,7 +30,7 @@ class TaskFormWidget extends StatelessWidget {
           children: [
             buildTitle(),
             const SizedBox(height: 8),
-            buildDescription()
+            buildDescription(),
           ],
         ),
       ),
