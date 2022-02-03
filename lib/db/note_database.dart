@@ -39,7 +39,8 @@ class NotesDataBase {
     )''');
     await db.execute('''
     CREATE TABLE $tableTask (
-      ${TasksFields.id} $intType,
+      ${TasksFields.id} $idType,
+      ${TasksFields.idNote} $intType,
       ${TasksFields.title} $textType,
       ${TasksFields.description} $textType,
       ${TasksFields.isDone} $boolType
@@ -48,13 +49,15 @@ class NotesDataBase {
 
   Future<Note> createNote(Note note) async {
     final db = await instance.database;
-    final id = await db.insert(tableNotes, note.toJson());
+    final id = await db.insert(tableNotes, note.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return note.copy(id: id);
   }
 
   Future<Task> createTask(Task task) async {
     final db = await instance.database;
-    final id = await db.insert(tableTask, task.toJson());
+    final id = await db.insert(tableTask, task.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return task.copy(id: id);
   }
 
@@ -81,7 +84,7 @@ class NotesDataBase {
     final result = await db.query(
       tableTask,
       columns: TasksFields.values,
-      where: '${TasksFields.id} = ?',
+      where: '${TasksFields.idNote} = ?',
       whereArgs: [id],
     );
 
@@ -99,14 +102,23 @@ class NotesDataBase {
     );
   }
 
-  Future<int> deleteTask(int id) async {
+  Future<void> updateTaskDone(int id, bool isDone) async {
+    Database db = await instance.database;
+
+    await db.rawUpdate(
+        "UPDATE '$tableTask' SET isDone = '$isDone' WHERE id = '$id'");
+  }
+
+  Future<void> delete(int id) async {
     final db = await instance.database;
 
-    return await db.delete(
-      tableTask,
-      where: '${TasksFields.id} = ?',
-      whereArgs: [id],
-    );
+    await db.rawDelete("DELETE FROM Note WHERE id = '$id' ");
+    await db.rawDelete("DELETE FROM Tasks WHERE id = '$id' ");
+    // return await db.delete(
+    //   tableTask,
+    //   where: '${TasksFields.id} = ?',
+    //   whereArgs: [id],
+    // );
   }
 
   Future<Note> readNotes(int id) async {
@@ -145,15 +157,15 @@ class NotesDataBase {
     );
   }
 
-  Future<int> deleteNote(int id) async {
-    final db = await instance.database;
+  // Future<int> deleteNote(int id) async {
+  //   final db = await instance.database;
 
-    return await db.delete(
-      tableNotes,
-      where: '${NotesFields.id}= ?',
-      whereArgs: [id],
-    );
-  }
+  //   return await db.delete(
+  //     tableNotes,
+  //     where: '${NotesFields.id}= ?',
+  //     whereArgs: [id],
+  //   );
+  // }
 
   Future close() async {
     final db = await instance.database;

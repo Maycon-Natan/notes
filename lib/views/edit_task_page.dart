@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:tasks_list/db/note_database.dart';
 import 'package:tasks_list/models/tasks.dart';
 import 'package:tasks_list/widgets/task_form_widget.dart';
 
 class AddEditTaskPage extends StatefulWidget {
   final Task? task;
-  final int taskId;
-  const AddEditTaskPage({Key? key, this.task, required this.taskId})
+  final int idNote;
+  const AddEditTaskPage({Key? key, this.task, required this.idNote})
       : super(key: key);
 
   @override
@@ -15,14 +16,16 @@ class AddEditTaskPage extends StatefulWidget {
 
 class _AddEditTaskPageState extends State<AddEditTaskPage> {
   final _formKey = GlobalKey<FormState>();
-  late String title;
-  late String description;
-  late bool done;
+  int? id;
+  String? title;
+  String? description;
+  bool? done;
 
   @override
   void initState() {
     super.initState();
 
+    id = widget.task?.id ?? 0;
     title = widget.task?.title ?? '';
     description = widget.task?.description ?? '';
     done = widget.task?.isDone ?? false;
@@ -50,13 +53,13 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
   }
 
   Widget buildButton() {
-    final isFormValid = title.isNotEmpty;
+    final isFormValid = title!.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-            onPrimary: Colors.amber,
+            onPrimary: Colors.white,
             primary: isFormValid ? null : Colors.grey.shade800),
         onPressed: addOrUpdateTask,
         child: const Text('Save'),
@@ -87,10 +90,11 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
 
   Future addTask() async {
     final task = Task(
-        id: widget.taskId,
-        title: title,
-        description: description,
-        isDone: false);
+        id: id,
+        title: title!,
+        description: description!,
+        isDone: false,
+        idNote: widget.idNote);
 
     await NotesDataBase.instance.createTask(task);
   }

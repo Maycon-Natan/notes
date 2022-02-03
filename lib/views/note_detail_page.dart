@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
-import 'package:tasks_list/db/helpers_database.dart';
 import 'package:tasks_list/db/note_database.dart';
 import 'package:tasks_list/models/note.dart';
 import 'package:tasks_list/models/tasks.dart';
 import 'package:tasks_list/views/edit_note_page.dart';
 import 'package:tasks_list/views/edit_task_page.dart';
-import 'package:tasks_list/widgets/task_form_widget.dart';
 
 class NotesDetailPage extends StatefulWidget {
   final int notesId;
@@ -97,7 +95,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
   Widget deleteButton() => IconButton(
         icon: const Icon(Icons.delete),
         onPressed: () async {
-          await NotesDataBase.instance.deleteNote(widget.notesId);
+          await NotesDataBase.instance.delete(widget.notesId);
 
           Navigator.of(context).pop();
         },
@@ -110,7 +108,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
           await Navigator.of(context)
               .push(MaterialPageRoute(
                   builder: (context) => AddEditTaskPage(
-                        taskId: widget.notesId,
+                        idNote: widget.notesId,
                       )))
               .then((value) {
             refreshTask();
@@ -155,7 +153,8 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
                       onChanged: (value) {
                         setState(() {
                           tasks.isDone = value!;
-                          updateTask(tasks);
+                          NotesDataBase.instance
+                              .updateTaskDone(widget.notesId, tasks.isDone);
                         });
                       },
                     ),
@@ -170,7 +169,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
                   await Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => AddEditTaskPage(
                       task: tasks,
-                      taskId: tasks.id!,
+                      idNote: widget.notesId,
                     ),
                   ));
 
@@ -183,7 +182,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
               ),
               SlidableAction(
                 onPressed: (context) async {
-                  await NotesDataBase.instance.deleteTask(widget.notesId);
+                  await NotesDataBase.instance.delete(widget.notesId);
 
                   refreshTask();
                 },
@@ -195,14 +194,14 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
             ]));
       });
 
-  Widget editButtonTask(Task task, int taskId) => IconButton(
+  Widget editButtonTask(Task task, int idNote) => IconButton(
       icon: const Icon(Icons.edit_outlined),
       onPressed: () async {
         if (isLoading) return;
         await Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => AddEditTaskPage(
             task: task,
-            taskId: taskId,
+            idNote: idNote,
           ),
         ));
 
@@ -212,7 +211,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
   Widget deleteButtonTask() => IconButton(
         icon: const Icon(Icons.delete),
         onPressed: () async {
-          await NotesDataBase.instance.deleteTask(widget.notesId);
+          await NotesDataBase.instance.delete(widget.notesId);
 
           Navigator.of(context).pop();
         },
