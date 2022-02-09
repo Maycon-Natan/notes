@@ -27,7 +27,6 @@ class Task {
 
   Map<String, dynamic> toMap() {
     return {
-      'tableTask': tableTask,
       'id': id,
       'idNote': idNote,
       'title': title,

@@ -19,7 +19,7 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
   int? id;
   String? title;
   String? description;
-  bool? done;
+  // bool? done;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
     id = widget.task?.id ?? 0;
     title = widget.task?.title ?? '';
     description = widget.task?.description ?? '';
-    done = widget.task?.isDone ?? false;
+    // done = widget.task?.isDone ?? false;
   }
 
   @override
@@ -42,11 +42,11 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
         child: TaskFormWidget(
           title: title,
           description: description,
-          done: done,
+          // done: done,
           onChangedTitle: (title) => setState(() => this.title = title),
           onChangedDescription: (description) =>
               setState(() => this.description = description),
-          onChangedDone: (done) => setState(() => this.done = done),
+          // onChangedDone: (done) => setState(() => this.done = done),
         ),
       ),
     );
@@ -82,19 +82,21 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
   }
 
   Future updateTask() async {
-    final task =
-        widget.task!.copy(title: title, description: description, isDone: done);
+    final task = widget.task!.copy(title: title, description: description);
 
-    await NotesDataBase.instance.updateTask(task);
+    await NotesDataBase.instance.updateTask(
+      task,
+    );
   }
 
   Future addTask() async {
     final task = Task(
-        id: id,
-        title: title!,
-        description: description!,
-        isDone: false,
-        idNote: widget.idNote);
+      id: null,
+      idNote: widget.idNote,
+      title: title!,
+      description: description!,
+      isDone: false,
+    );
 
     await NotesDataBase.instance.createTask(task);
   }

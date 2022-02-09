@@ -49,15 +49,19 @@ class NotesDataBase {
 
   Future<Note> createNote(Note note) async {
     final db = await instance.database;
-    final id = await db.insert(tableNotes, note.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final id = await db.insert(
+      tableNotes,
+      note.toJson(),
+    );
     return note.copy(id: id);
   }
 
   Future<Task> createTask(Task task) async {
     final db = await instance.database;
-    final id = await db.insert(tableTask, task.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final id = await db.insert(
+      tableTask,
+      task.toJson(),
+    );
     return task.copy(id: id);
   }
 
@@ -102,23 +106,35 @@ class NotesDataBase {
     );
   }
 
-  Future<void> updateTaskDone(int id, bool isDone) async {
+  Future<int> updateTaskDone(Task task) async {
     Database db = await instance.database;
+    return db.update(
+      tableTask,
+      task.toMap(),
+      where: '${TasksFields.id} = ?',
+      whereArgs: [task.id],
+    );
 
-    await db.rawUpdate(
-        "UPDATE '$tableTask' SET isDone = '$isDone' WHERE id = '$id'");
+    // await db.rawUpdate(
+    //     "UPDATE '$tableTask' SET isDone = '$isDone' WHERE id = '$id'");
   }
 
-  Future<void> delete(int id) async {
+  Future<void> deleteNotes(int id) async {
     final db = await instance.database;
 
-    await db.rawDelete("DELETE FROM Note WHERE id = '$id' ");
-    await db.rawDelete("DELETE FROM Tasks WHERE id = '$id' ");
+    await db.rawDelete("DELETE FROM '$tableNotes' WHERE id = '$id' ");
+    await db.rawDelete("DELETE FROM '$tableTask' WHERE id = '$id' ");
     // return await db.delete(
     //   tableTask,
     //   where: '${TasksFields.id} = ?',
     //   whereArgs: [id],
     // );
+  }
+
+  Future<void> deleteTask(int id) async {
+    final db = await instance.database;
+
+    await db.rawDelete("DELETE FROM '$tableTask' WHERE id = '$id' ");
   }
 
   Future<Note> readNotes(int id) async {

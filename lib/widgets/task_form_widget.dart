@@ -5,20 +5,20 @@ import 'package:tasks_list/models/tasks.dart';
 class TaskFormWidget extends StatelessWidget {
   final String? title;
   final String? description;
-  final bool? done;
+  // final bool? done;
   final ValueChanged<String> onChangedTitle;
   final ValueChanged<String> onChangedDescription;
-  final ValueChanged<bool> onChangedDone;
+  // final ValueChanged<bool> onChangedDone;
 
-  const TaskFormWidget(
-      {Key? key,
-      this.title = '',
-      this.description = '',
-      this.done = false,
-      required this.onChangedTitle,
-      required this.onChangedDescription,
-      required this.onChangedDone})
-      : super(key: key);
+  const TaskFormWidget({
+    Key? key,
+    this.title = '',
+    this.description = '',
+    // this.done = false,
+    required this.onChangedTitle,
+    required this.onChangedDescription,
+    // required this.onChangedDone}
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

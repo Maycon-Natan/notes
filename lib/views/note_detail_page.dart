@@ -95,7 +95,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
   Widget deleteButton() => IconButton(
         icon: const Icon(Icons.delete),
         onPressed: () async {
-          await NotesDataBase.instance.delete(widget.notesId);
+          await NotesDataBase.instance.deleteNotes(widget.notesId);
 
           Navigator.of(context).pop();
         },
@@ -148,16 +148,20 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
                         Text(tasks.description),
                       ],
                     ),
-                    Checkbox(
-                      value: tasks.isDone,
-                      onChanged: (value) {
-                        setState(() {
-                          tasks.isDone = value!;
-                          NotesDataBase.instance
-                              .updateTaskDone(widget.notesId, tasks.isDone);
-                        });
-                      },
-                    ),
+                    checkboxCustom(tasks),
+                    // Checkbox(
+                    //   value: tasks.isDone,
+                    //   onChanged: (value) async {
+                    //     final task = tasks.copy(
+                    //         title: tasks.title,
+                    //         description: tasks.description,
+                    //         isDone: tasks.isDone);
+                    //     await NotesDataBase.instance.updateTaskDone(task);
+                    //     setState(() {
+                    //       tasks.isDone = value!;
+                    //     });
+                    //   },
+                    // ),
                   ],
                 ),
               ),
@@ -182,13 +186,13 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
               ),
               SlidableAction(
                 onPressed: (context) async {
-                  await NotesDataBase.instance.delete(widget.notesId);
+                  await NotesDataBase.instance.deleteTask(tasks.id!);
 
                   refreshTask();
                 },
                 backgroundColor: const Color(0xFFFE4A49),
                 foregroundColor: Colors.white,
-                icon: Icons.edit,
+                icon: Icons.delete,
                 label: 'Delete',
               )
             ]));
@@ -205,15 +209,29 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
           ),
         ));
 
-        refreshNote();
+        refreshTask();
       });
 
-  Widget deleteButtonTask() => IconButton(
-        icon: const Icon(Icons.delete),
-        onPressed: () async {
-          await NotesDataBase.instance.delete(widget.notesId);
+  // Widget deleteButtonTask() => IconButton(
+  //       icon: const Icon(Icons.delete),
+  //       onPressed: () async {
+  //         await NotesDataBase.instance.deleteTask(id);
 
-          Navigator.of(context).pop();
-        },
-      );
+  //         Navigator.of(context).pop();
+  //       },
+  //     );
+
+  Checkbox checkboxCustom(Task tasks) {
+    return Checkbox(
+      value: tasks.isDone,
+      onChanged: (value) async {
+        final task = tasks.copy(
+            title: tasks.title, description: tasks.description, isDone: value);
+        await NotesDataBase.instance.updateTaskDone(task);
+        setState(() {
+          tasks.isDone = value!;
+        });
+      },
+    );
+  }
 }

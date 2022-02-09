@@ -5,7 +5,7 @@ const String tableNotes = 'Note';
 class NotesFields {
   static final List<String> values = [id, isImportant, title, time];
 
-  static const String id = '_id';
+  static const String id = 'id';
   static const String isImportant = 'isImportant';
 
   static const String title = 'name';
