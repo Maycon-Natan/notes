@@ -114,9 +114,6 @@ class NotesDataBase {
       where: '${TasksFields.id} = ?',
       whereArgs: [task.id],
     );
-
-    // await db.rawUpdate(
-    //     "UPDATE '$tableTask' SET isDone = '$isDone' WHERE id = '$id'");
   }
 
   Future<void> deleteNotes(int id) async {
@@ -124,11 +121,6 @@ class NotesDataBase {
 
     await db.rawDelete("DELETE FROM '$tableNotes' WHERE id = '$id' ");
     await db.rawDelete("DELETE FROM '$tableTask' WHERE id = '$id' ");
-    // return await db.delete(
-    //   tableTask,
-    //   where: '${TasksFields.id} = ?',
-    //   whereArgs: [id],
-    // );
   }
 
   Future<void> deleteTask(int id) async {

@@ -84,9 +84,7 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
   Future updateTask() async {
     final task = widget.task!.copy(title: title, description: description);
 
-    await NotesDataBase.instance.updateTask(
-      task,
-    );
+    await NotesDataBase.instance.updateTask(task);
   }
 
   Future addTask() async {

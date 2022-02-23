@@ -53,7 +53,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
               child: CircularProgressIndicator(),
             )
           : Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,87 +116,81 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
         },
       );
 
-  Widget buildTask() => ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(24),
-      itemCount: task!.length,
-      itemBuilder: (context, index) {
-        final tasks = task![index];
+  Widget buildTask() => ReorderableListView(
+        key: UniqueKey(),
+        shrinkWrap: true,
+        onReorder: (int oldIndex, int newIndex) => setState(() {
+          final index = newIndex > oldIndex ? newIndex - 1 : newIndex;
 
-        return Slidable(
-            key: UniqueKey(),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tasks.title,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold),
+          final tasks = task?.removeAt(oldIndex);
+          task!.insert(index, tasks!);
+        }),
+        children: [
+          for (final tasks in task!)
+            isLoading == false
+                ? Slidable(
+                    key: UniqueKey(),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  tasks.title,
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(tasks.description),
+                              ],
+                            ),
+                            checkboxCustom(tasks),
+                          ],
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(tasks.description),
-                      ],
+                      ),
                     ),
-                    checkboxCustom(tasks),
-                    // Checkbox(
-                    //   value: tasks.isDone,
-                    //   onChanged: (value) async {
-                    //     final task = tasks.copy(
-                    //         title: tasks.title,
-                    //         description: tasks.description,
-                    //         isDone: tasks.isDone);
-                    //     await NotesDataBase.instance.updateTaskDone(task);
-                    //     setState(() {
-                    //       tasks.isDone = value!;
-                    //     });
-                    //   },
-                    // ),
-                  ],
-                ),
-              ),
-            ),
-            endActionPane: ActionPane(motion: const ScrollMotion(), children: [
-              SlidableAction(
-                onPressed: (context) async {
-                  if (isLoading) return;
-                  await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AddEditTaskPage(
-                      task: tasks,
-                      idNote: widget.notesId,
-                    ),
-                  ));
+                    endActionPane:
+                        ActionPane(motion: const ScrollMotion(), children: [
+                      SlidableAction(
+                        onPressed: (context) async {
+                          if (isLoading) return;
+                          await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AddEditTaskPage(
+                              task: tasks,
+                              idNote: widget.notesId,
+                            ),
+                          ));
 
-                  refreshNote();
-                },
-                backgroundColor: const Color(0xFF21B7CA),
-                foregroundColor: Colors.white,
-                icon: Icons.edit,
-                label: 'Edit',
-              ),
-              SlidableAction(
-                onPressed: (context) async {
-                  await NotesDataBase.instance.deleteTask(tasks.id!);
+                          refreshTask();
+                        },
+                        backgroundColor: const Color(0xFF21B7CA),
+                        foregroundColor: Colors.white,
+                        icon: Icons.edit,
+                        label: 'Edit',
+                      ),
+                      SlidableAction(
+                        onPressed: (context) async {
+                          await NotesDataBase.instance.deleteTask(tasks.id!);
 
-                  refreshTask();
-                },
-                backgroundColor: const Color(0xFFFE4A49),
-                foregroundColor: Colors.white,
-                icon: Icons.delete,
-                label: 'Delete',
-              )
-            ]));
-      });
+                          refreshTask();
+                        },
+                        backgroundColor: const Color(0xFFFE4A49),
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        label: 'Delete',
+                      )
+                    ]))
+                : const CircularProgressIndicator()
+        ],
+      );
 
   Widget editButtonTask(Task task, int idNote) => IconButton(
       icon: const Icon(Icons.edit_outlined),
@@ -211,15 +205,6 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
 
         refreshTask();
       });
-
-  // Widget deleteButtonTask() => IconButton(
-  //       icon: const Icon(Icons.delete),
-  //       onPressed: () async {
-  //         await NotesDataBase.instance.deleteTask(id);
-
-  //         Navigator.of(context).pop();
-  //       },
-  //     );
 
   Checkbox checkboxCustom(Task tasks) {
     return Checkbox(
