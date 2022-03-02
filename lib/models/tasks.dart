@@ -1,24 +1,34 @@
 const String tableTask = 'Tasks';
 
 class TasksFields {
-  static final List<String> values = [id, idNote, title, description, isDone];
+  static final List<String> values = [
+    id,
+    idNote,
+    title,
+    description,
+    isDone,
+    ordem
+  ];
 
   static const String id = 'id';
   static const String idNote = 'idNote';
   static const String title = 'title';
   static const String description = 'description';
   static const String isDone = 'isDone';
+  static const String ordem = 'ordem';
 }
 
 class Task {
   int? id;
   int idNote;
+  int? ordem;
   String title;
   String description;
   bool isDone;
 
   Task({
     this.id,
+    this.ordem,
     required this.idNote,
     required this.title,
     required this.description,
@@ -32,6 +42,7 @@ class Task {
       'title': title,
       'description': description,
       'isDone': isDone,
+      'ordem': ordem
     };
   }
 
@@ -42,6 +53,7 @@ class Task {
       title: map['title'] ?? '',
       description: map['description'] ?? '',
       isDone: map['isDone'] ?? false,
+      ordem: map['ordem']?.toInt() ?? 0,
     );
   }
 
@@ -51,21 +63,23 @@ class Task {
         TasksFields.title: title,
         TasksFields.description: description,
         TasksFields.isDone: isDone ? 1 : 0,
+        TasksFields.ordem: ordem
       };
 
-  Task copy({
-    int? id,
-    int? idNote,
-    String? title,
-    String? description,
-    bool? isDone,
-  }) =>
+  Task copy(
+          {int? id,
+          int? idNote,
+          String? title,
+          String? description,
+          bool? isDone,
+          int? ordem}) =>
       Task(
         id: id ?? this.id,
         idNote: idNote ?? this.idNote,
         title: title ?? this.title,
         description: description ?? this.description,
         isDone: isDone ?? this.isDone,
+        ordem: ordem ?? this.ordem,
       );
 
   static Task fromJson(Map<String, Object?> json) => Task(
@@ -74,5 +88,6 @@ class Task {
         title: json[TasksFields.title] as String,
         description: json[TasksFields.description] as String,
         isDone: json[TasksFields.isDone] == 1,
+        ordem: json[TasksFields.ordem] as int?,
       );
 }

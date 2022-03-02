@@ -19,6 +19,7 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
   int? id;
   String? title;
   String? description;
+  int? ordem;
   // bool? done;
 
   @override
@@ -28,6 +29,7 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
     id = widget.task?.id ?? 0;
     title = widget.task?.title ?? '';
     description = widget.task?.description ?? '';
+    ordem = widget.task?.ordem ?? 0;
     // done = widget.task?.isDone ?? false;
   }
 
@@ -94,6 +96,7 @@ class _AddEditTaskPageState extends State<AddEditTaskPage> {
       title: title!,
       description: description!,
       isDone: false,
+      ordem: ordem,
     );
 
     await NotesDataBase.instance.createTask(task);

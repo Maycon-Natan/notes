@@ -58,19 +58,25 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      note!.title,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 5),
+                      child: Text(
+                        note!.title,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                     const SizedBox(
                       height: 8,
                     ),
-                    Text(
-                      DateFormat.yMMM().format(note!.createdTime),
-                      style: const TextStyle(color: Colors.white38),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 5),
+                      child: Text(
+                        DateFormat.yMMM().format(note!.createdTime),
+                        style: const TextStyle(color: Colors.white38),
+                      ),
                     ),
                     buildTask(),
                   ],
@@ -119,12 +125,7 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
   Widget buildTask() => ReorderableListView(
         key: UniqueKey(),
         shrinkWrap: true,
-        onReorder: (int oldIndex, int newIndex) => setState(() {
-          final index = newIndex > oldIndex ? newIndex - 1 : newIndex;
-
-          final tasks = task?.removeAt(oldIndex);
-          task!.insert(index, tasks!);
-        }),
+        onReorder: _orOrder,
         children: [
           for (final tasks in task!)
             isLoading == false
@@ -218,5 +219,27 @@ class _NotesDetailPageState extends State<NotesDetailPage> {
         });
       },
     );
+  }
+
+  Future _orOrder(int oldIndex, int newIndex) async {
+    if (newIndex > task!.length) newIndex = task!.length;
+    if (oldIndex < newIndex) newIndex -= 1;
+
+    final Task item = task![oldIndex];
+    final Task taskOrder1 = item.copy(ordem: newIndex);
+
+    await NotesDataBase.instance.updateTaskDone(taskOrder1);
+
+    setState(() {
+      task!.removeAt(oldIndex);
+      task!.insert(newIndex, item);
+    });
+
+    for (var i = 0; i < task!.length; i++) {
+      final item = task![i];
+      final alternOrdem = item.copy(ordem: i);
+
+      await NotesDataBase.instance.updateTaskDone(alternOrdem);
+    }
   }
 }

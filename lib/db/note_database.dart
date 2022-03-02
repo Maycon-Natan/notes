@@ -29,6 +29,7 @@ class NotesDataBase {
     const intType = 'INTEGER NOT NULL';
     const textType = 'TEXT NOT NULL';
     const boolType = 'BOOLEAN NOT NULL';
+    const intAutoType = 'INTEGER';
 
     await db.execute('''
     CREATE TABLE $tableNotes(
@@ -43,7 +44,8 @@ class NotesDataBase {
       ${TasksFields.idNote} $intType,
       ${TasksFields.title} $textType,
       ${TasksFields.description} $textType,
-      ${TasksFields.isDone} $boolType
+      ${TasksFields.isDone} $boolType,
+      ${TasksFields.ordem} $intAutoType
     )''');
   }
 
@@ -70,6 +72,7 @@ class NotesDataBase {
 
     final maps = await db.query(
       tableTask,
+      orderBy: '${TasksFields.ordem} ASC',
       columns: TasksFields.values,
       where: '${TasksFields.id} = ?',
       whereArgs: [id],
@@ -87,6 +90,7 @@ class NotesDataBase {
 
     final result = await db.query(
       tableTask,
+      orderBy: '${TasksFields.ordem} ASC',
       columns: TasksFields.values,
       where: '${TasksFields.idNote} = ?',
       whereArgs: [id],
